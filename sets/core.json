@@ -1,0 +1,16 @@
+{
+  "name": "core",
+  "description": "The minimum verified set. Every binding is in a tier that survives Electron composers.",
+  "commands": [
+    { "say": ["punch it", "punch send"],                    "key": 36, "cmd": true },
+    { "say": ["select all", "clear it", "wipe it"],          "key": 0,  "cmd": true },
+    { "say": ["copy that", "copy this"],                     "key": 8,  "cmd": true },
+    { "say": ["paste that", "paste this"],                   "key": 9,  "cmd": true },
+    { "say": ["undo that", "undo this"],                     "key": 6,  "cmd": true },
+    { "say": ["new chat", "fresh chat"],                     "key": 45, "cmd": true },
+    { "say": ["go to claude", "switch to claude"],           "open": "file:///Applications/Claude.app" },
+    { "say": ["go to cursor", "switch to cursor"],           "open": "file:///Applications/Cursor.app" },
+    { "say": ["go to slack", "switch to slack"],             "open": "file:///Applications/Slack.app" },
+    { "say": ["press escape", "cancel that"],                "key": 53 }
+  ]
+}

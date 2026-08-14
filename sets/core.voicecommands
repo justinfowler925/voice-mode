@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CommandsTable</key>
+	<dict>
+		<key>Custom.900000000.100000000</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>punch it</string>
+					<string>punch send</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>36</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000001.100000001</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>select all</string>
+					<string>clear it</string>
+					<string>wipe it</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>0</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000002.100000002</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>copy that</string>
+					<string>copy this</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>8</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000003.100000003</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>paste that</string>
+					<string>paste this</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>9</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000004.100000004</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>undo that</string>
+					<string>undo this</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>6</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000005.100000005</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>new chat</string>
+					<string>fresh chat</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomShortcutKeyCode</key>
+			<integer>45</integer>
+			<key>CustomShortcutModifierFlags</key>
+			<integer>1048576</integer>
+			<key>CustomType</key>
+			<string>Shortcut</string>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000006.100000006</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>go to claude</string>
+					<string>switch to claude</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file:///Applications/Claude.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000007.100000007</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>go to cursor</string>
+					<string>switch to cursor</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file:///Applications/Cursor.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000008.100000008</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>go to slack</string>
+					<string>switch to slack</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file:///Applications/Slack.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>ExportDate</key>
+	<real>808400000.0</real>
+	<key>SystemVersion</key>
+	<dict>
+		<key>ProductName</key>
+		<string>macOS</string>
+		<key>ProductVersion</key>
+		<string>26.6</string>
+	</dict>
+</dict>
+</plist>

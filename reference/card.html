@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- shine-lint: off type
+     Local on-screen reference card, single purpose, ~380px wide. COLOR is all real
+     shine tokens from the vendored tokens.css beside this file. Type is deliberately
+     off-scale: this window is read at a glance from across a desk at a fixed small
+     width, so sizes are tuned to that instead of the document scale. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Voice commands</title>
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    padding: 18px 20px 22px;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    cursor: default;
+  }
+  h1 {
+    font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--mute); font-weight: 500; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h1 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+  .core { display: grid; grid-template-columns: auto 1fr; gap: 9px 14px; align-items: baseline; }
+  .say { color: var(--accent); font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .does { color: var(--paper-2); font-size: 12px; line-height: 1.45; }
+  .does b { color: var(--paper); font-weight: 500; }
+  hr { border: none; border-top: 1px solid var(--ink-3); margin: 16px 0 14px; }
+  .more { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: baseline; }
+  .more .say { font-size: 12px; font-weight: 500; color: var(--accent-2); }
+  .more .does { font-size: 11px; color: var(--mute); }
+  footer {
+    margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--ink-3);
+    font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute-2);
+    line-height: 1.7;
+  }
+  footer b { color: var(--accent-2); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<h1><span class="dot"></span>Voice commands</h1>
+
+<div class="core">
+  <span class="say">punch it</span>       <span class="does"><b>send</b> · works everywhere</span>
+  <span class="say">go to cursor</span>   <span class="does">switch app · <b>claude</b> / <b>slack</b> / <b>linear</b></span>
+  <span class="say">hands</span>          <span class="does">stop typing, commands still live</span>
+  <span class="say">talk</span>           <span class="does">resume typing</span>
+  <span class="say">scratch that</span>   <span class="does">delete last phrase</span>
+  <span class="say">click <i>name</i></span> <span class="does">press anything on screen</span>
+</div>
+
+<hr />
+
+<div class="more">
+  <span class="say">show numbers</span>  <span class="does">badge every clickable thing</span>
+  <span class="say">show commands</span> <span class="does">Apple's full list, this app</span>
+  <span class="say">select all</span>    <span class="does">then <i>copy that</i> / <i>paste that</i> / <i>undo that</i></span>
+  <span class="say">new chat</span>      <span class="does">fresh conversation</span>
+  <span class="say">scroll down</span>   <span class="does">also <i>scroll up</i></span>
+  <span class="say">go to sleep</span>   <span class="does">stop listening · <i>wake up</i></span>
+</div>
+
+<footer>
+  Bare keys get swallowed — <b>press return</b> and <b>press escape</b><br />
+  are unreliable in Claude, Cursor and Slack.
+</footer>
+
+</body>
+</html>

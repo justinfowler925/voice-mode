@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""voice-mode — inspect, diagnose and build macOS Voice Control command sets.
+
+The interesting command is `doctor`. macOS keeps a per-command recognition counter and
+shows it to nobody; without it you cannot tell "it never heard me" from "it heard me and
+the action did nothing", and those have completely different fixes.
+
+Requires only python3 and the `defaults` binary. No third-party packages.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import plistlib
+import subprocess
+import sys
+from pathlib import Path
+
+CMD_DOMAIN = "com.apple.speech.recognition.AppleSpeechRecognition.CustomCommands"
+PREF_DOMAIN = "com.apple.speech.recognition.AppleSpeechRecognition.prefs"
+APPLE_EPOCH = dt.datetime(2001, 1, 1)
+CMD_FLAG = 1 << 20  # 1048576
+
+# Virtual key codes worth naming. Bare keys are called out because they do not survive.
+KEY_NAMES = {
+    0: "A", 6: "Z", 8: "C", 9: "V", 36: "Return", 45: "N", 48: "Tab",
+    49: "Space", 51: "Delete", 53: "Escape", 116: "PageUp", 121: "PageDown",
+    115: "Home", 119: "End", 123: "Left", 124: "Right", 125: "Down", 126: "Up",
+}
+
+# Tiers, from docs/mechanism-tiers.md. Electron composers drop a synthetic bare key.
+TIER_OK_MOD = "modified-key"
+TIER_OK_LAUNCH = "app-launch"
+TIER_OK_AX = "accessibility"
+TIER_BAD_BARE = "bare-key"
+
+TIER_NOTE = {
+    TIER_OK_MOD: "survives Electron composers",
+    TIER_OK_LAUNCH: "nothing in the path to swallow it",
+    TIER_OK_AX: "needs the target control to have a name",
+    TIER_BAD_BARE: "SWALLOWED by Claude / Cursor / Slack / VS Code",
+}
+
+
+def _read(domain: str) -> dict:
+    try:
+        raw = subprocess.check_output(["defaults", "export", domain, "-"])
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return {}
+    try:
+        return plistlib.loads(raw)
+    except Exception:
+        return {}
+
+
+def _apple_time(v) -> str:
+    try:
+        return (APPLE_EPOCH + dt.timedelta(seconds=float(v))).strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return "—"
+
+
+def classify(cmd: dict) -> tuple[str, str]:
+    """Return (tier, human-readable binding)."""
+    t = cmd.get("CustomType")
+    if t == "Shortcut":
+        code = cmd.get("CustomShortcutKeyCode")
+        mods = cmd.get("CustomShortcutModifierFlags") or 0
+        key = KEY_NAMES.get(code, f"key{code}")
+        if mods & CMD_FLAG:
+            return TIER_OK_MOD, f"Cmd+{key}"
+        return TIER_BAD_BARE, key
+    if t == "URL":
+        targets = cmd.get("CustomURLStringList") or []
+        name = targets[0].rstrip("/").split("/")[-1] if targets else "?"
+        return TIER_OK_LAUNCH, f"opens {name}"
+    if t in ("SelectMenu", "Menu"):
+        return TIER_OK_AX, "menu item by name"
+    return TIER_OK_AX, str(t or "builtin")
+
+
+def load_commands() -> list[dict]:
+    """Every spoken command in the live store. NOTE: the live table is FLAT."""
+    table = _read(CMD_DOMAIN)
+    counts = _read(PREF_DOMAIN).get("DictationIMCommandCounts", {})
+    out = []
+    for cid, v in table.items():
+        if not isinstance(v, dict):
+            continue
+        phrases = (v.get("CustomCommands") or {}).get("en_US") or []
+        builtin = cid.startswith(("System.", "Text.", "Accessibility.", "Dictation.", "Application."))
+        if not phrases and not builtin:
+            continue
+        tier, binding = classify(v)
+        out.append({
+            "id": cid,
+            "phrases": phrases,
+            "tier": tier,
+            "binding": binding,
+            "enabled": v.get("Enabled"),
+            "builtin": builtin,
+            "fired": int(counts.get(cid, 0)),
+            "scope": v.get("CustomScope", ""),
+        })
+    return out
+
+
+def cmd_doctor(args) -> int:
+    prefs = _read(PREF_DOMAIN)
+    cmds = load_commands()
+    custom = [c for c in cmds if not c["builtin"]]
+
+    print("VOICE CONTROL — DOCTOR\n" + "=" * 60)
+    on = prefs.get("DictationIMCommandAndControlEnabled")
+    running = subprocess.run(["pgrep", "-x", "DictationIM"],
+                             capture_output=True).returncode == 0
+    print(f"  Voice Control enabled : {'yes' if on else 'NO'}")
+    print(f"  recognizer running    : {'yes' if running else 'NO — nothing will be heard'}")
+    print(f"  total dictations      : {prefs.get('DictationIMCommandCounts', {}).get('Dictation.Streaming', 0)}")
+    print(f"  last command heard    : {_apple_time(prefs.get('DictationIMLastCommandDate'))}")
+    print(f"  custom commands       : {len(custom)}")
+
+    problems = []
+
+    # The headline check: bindings that cannot work where the user actually types.
+    bare = [c for c in custom if c["tier"] == TIER_BAD_BARE]
+    if bare:
+        problems.append(
+            f"{len(bare)} command(s) bound to a BARE KEY — these are silently dropped by "
+            "Electron composers (Claude, Cursor, Slack, VS Code). Rebind to a modified key, "
+            "a menu item, or an accessibility action."
+        )
+
+    # Never-fired commands: untested, not necessarily broken. Worth saying out loud.
+    never = [c for c in custom if c["fired"] == 0]
+
+    # A custom command whose phrase shadows a built-in silently disables the built-in.
+    disabled_builtins = [c for c in cmds if c["builtin"] and c["enabled"] is False]
+    if disabled_builtins:
+        problems.append(
+            f"{len(disabled_builtins)} BUILT-IN command(s) are disabled. A custom command "
+            "sharing a phrase with a built-in switches the built-in off — and the native one "
+            "usually rides a better mechanism. Check you did that on purpose."
+        )
+
+    for tier in (TIER_OK_MOD, TIER_OK_LAUNCH, TIER_OK_AX, TIER_BAD_BARE):
+        group = [c for c in custom if c["tier"] == tier]
+        if not group:
+            continue
+        flag = "FAILS " if tier == TIER_BAD_BARE else "works "
+        print(f"\n  [{flag}] {tier} — {TIER_NOTE[tier]}")
+        for c in sorted(group, key=lambda x: -x["fired"]):
+            said = " / ".join(c["phrases"])
+            mark = "  " if c["fired"] else " ·"
+            print(f"   {mark} {said:44} {c['binding']:14} fired {c['fired']}")
+
+    if disabled_builtins:
+        print("\n  [disabled built-ins]")
+        for c in disabled_builtins:
+            print(f"      {c['id']}  (fired {c['fired']} before being switched off)")
+
+    print("\n" + "-" * 60)
+    if problems:
+        print("FINDINGS")
+        for p in problems:
+            print(f"  ! {p}")
+    else:
+        print("No binding problems found.")
+    if never:
+        print(f"\n  {len(never)} command(s) have never fired — untested, not proven broken:")
+        print("     " + ", ".join(c["phrases"][0] for c in never))
+    print("\nHow to read `fired`: it is the OS's own recognition counter.")
+    print("  moved but nothing happened -> recognized, the BINDING is wrong.")
+    print("  never moved                -> not recognized, the PHRASE is wrong.")
+    return 1 if problems else 0
+
+
+def cmd_list(args) -> int:
+    cmds = [c for c in load_commands() if not c["builtin"]]
+    if args.json:
+        print(json.dumps(cmds, indent=2))
+        return 0
+    for c in sorted(cmds, key=lambda x: x["phrases"][0] if x["phrases"] else ""):
+        print(f"{' / '.join(c['phrases']):48} {c['binding']:16} {c['tier']}")
+    return 0
+
+
+def cmd_build(args) -> int:
+    """Turn a readable JSON set into an importable .voicecommands file."""
+    spec = json.loads(Path(args.spec).read_text())
+    table, skipped = {}, []
+    for i, entry in enumerate(spec.get("commands", [])):
+        phrases = entry.get("say") or []
+        if not phrases:
+            skipped.append(entry)
+            continue
+        cid = f"Custom.{900000000 + i}.{100000000 + i}"
+        c = {
+            "CustomCommands": {"en_US": phrases},
+            "CustomScope": entry.get("scope", "com.apple.speech.SystemWideScope"),
+            "Enabled": True,
+            "CustomModifyDate": dt.datetime(2026, 1, 1),
+        }
+        if "key" in entry:
+            c["CustomType"] = "Shortcut"
+            c["CustomShortcutKeyCode"] = entry["key"]
+            if entry.get("cmd"):
+                c["CustomShortcutModifierFlags"] = CMD_FLAG
+            elif not entry.get("allow_bare"):
+                skipped.append({**entry, "_why": "bare key — pass allow_bare to force"})
+                continue
+        elif "open" in entry:
+            c["CustomType"] = "URL"
+            c["CustomURLStringList"] = [entry["open"]]
+        else:
+            skipped.append({**entry, "_why": "no key or open target"})
+            continue
+        table[cid] = c
+
+    out = {
+        "CommandsTable": table,          # export format IS wrapped; the live store is not
+        "ExportDate": 808400000.0,
+        "SystemVersion": {"ProductName": "macOS", "ProductVersion": "26.6"},
+    }
+    dest = Path(args.out)
+    dest.write_bytes(plistlib.dumps(out))
+    print(f"wrote {dest}  ({len(table)} commands)")
+    for s in skipped:
+        print(f"  SKIPPED {s.get('say')}: {s.get('_why','no phrases')}")
+    print("\nInstall: System Settings > Accessibility > Voice Control > Commands > Import")
+    print("(Import is Apple's supported path. Writing the live plist is not.)")
+    return 0
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(prog="voice-mode", description=__doc__,
+                               formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    d = sub.add_parser("doctor", help="diagnose every command by binding tier + fire count")
+    d.set_defaults(func=cmd_doctor)
+
+    l = sub.add_parser("list", help="list your custom commands")
+    l.add_argument("--json", action="store_true")
+    l.set_defaults(func=cmd_list)
+
+    b = sub.add_parser("build", help="JSON set -> importable .voicecommands")
+    b.add_argument("spec")
+    b.add_argument("-o", "--out", default="out.voicecommands")
+    b.set_defaults(func=cmd_build)
+
+    args = p.parse_args()
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
