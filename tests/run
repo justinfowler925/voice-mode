@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# The gate. CI cannot run in this repo (see README § Testing), so this is it.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+echo "== unit + gate tests =="
+python3 tests/test_voice_mode.py
+echo
+echo "== sets rebuild and match what is committed =="
+for s in sets/*.json; do
+  n=$(basename "$s" .json)
+  ./bin/voice-mode build "$s" -o "/tmp/$n.voicecommands" >/dev/null
+  python3 - "$s" "sets/$n.voicecommands" "/tmp/$n.voicecommands" <<'PY'
+import plistlib, sys
+_, spec, committed, fresh = sys.argv
+def norm(p):
+    t = plistlib.loads(open(p, 'rb').read())["CommandsTable"]
+    if not t:
+        sys.exit(f"{p} is EMPTY — broken, not clean")
+    return sorted((tuple(v["CustomCommands"]["en_US"]), v.get("CustomType"),
+                   v.get("CustomShortcutKeyCode"), v.get("CustomShortcutModifierFlags"),
+                   tuple(v.get("CustomURLStringList", []))) for v in t.values())
+if norm(committed) != norm(fresh):
+    sys.exit(f"  STALE: {committed} does not match a rebuild from {spec}")
+print(f"  ok   {committed}")
+PY
+done
+echo
+echo "all gates passed"

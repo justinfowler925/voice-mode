@@ -97,6 +97,22 @@ speech — each one submits a half-written message.
   `punch it` and `punch send` can both exist with no risk.
 - You cannot talk *about* a command without firing it — switch to commands-only mode first.
 
+## Testing
+
+```sh
+./tests/run
+```
+
+31 checks. They exist to prove the gates **reject**, not to cover lines — every guard is fed a
+known violation and asserted to refuse it. Plus: shipped `.voicecommands` files must match a
+fresh rebuild from their `.json`, and an empty set fails rather than passing as "clean."
+
+**There is no CI here, deliberately.** GitHub Actions cannot start a run in this repository —
+a workflow whose only step is `echo hello` completes as *failure* in about four seconds with
+**zero steps executed** and no annotation. That is an account-level condition, not a code
+problem, and a permanently red check would misrepresent working code. `./tests/run` is the gate.
+If you fork this, add your own workflow calling that script; it needs nothing but python3.
+
 ## Status
 
 Early. Verified on macOS 26.6 against Claude, Cursor and Slack. Everything documented here was
