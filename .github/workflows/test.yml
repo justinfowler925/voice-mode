@@ -1,24 +1,72 @@
 name: test
-# Runs on pull_request so it is a GATE, not a post-merge deploy. A workflow that only
-# fires on push:[main] runs after the merge and cannot block anything.
+
+# On pull_request so this is a GATE, not a post-merge report. A workflow that only fires
+# on push:[main] runs after the merge and cannot block anything.
 on:
   pull_request:
   push:
     branches: [main]
   workflow_dispatch:
+
 jobs:
   test:
-    runs-on: macos-latest
+    # ubuntu, not macos-latest: macOS runners are unavailable on this account (a
+    # macos-latest job fails in ~4s with zero steps executed, which looks exactly like
+    # a code failure and is not one). The suite doesn't need macOS — it stubs the
+    # `defaults` read and plistlib is cross-platform. The only macOS-specific check was
+    # `plutil -lint`, replaced below with a plistlib parse that runs anywhere.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show python
+
+      - name: Python version
         run: python3 --version
+
       - name: Tests
         run: python3 tests/test_voice_mode.py
-      - name: Sets rebuild reproducibly
+
+      - name: Sets rebuild
         run: |
+          set -e
           for s in sets/*.json; do
             ./bin/voice-mode build "$s" -o "/tmp/$(basename "$s" .json).voicecommands"
           done
-      - name: Every shipped .voicecommands is a valid plist
-        run: for f in sets/*.voicecommands; do plutil -lint "$f"; done
+
+      - name: Every shipped .voicecommands parses as a plist, and is non-empty
+        run: |
+          python3 - <<'PY'
+          import plistlib, pathlib, sys
+          files = sorted(pathlib.Path("sets").glob("*.voicecommands"))
+          if not files:
+              sys.exit("no .voicecommands files found — nothing was checked")
+          bad = 0
+          for f in files:
+              d = plistlib.loads(f.read_bytes())
+              n = len(d.get("CommandsTable", {}))
+              print(f"  {f.name}: {n} commands")
+              if n == 0:
+                  print(f"    EMPTY — a set that emits nothing is broken, not clean")
+                  bad += 1
+          sys.exit(bad)
+          PY
+
+      - name: Rebuilt sets match what is committed
+        run: |
+          set -e
+          for s in sets/*.json; do
+            n=$(basename "$s" .json)
+            python3 - "$s" "sets/$n.voicecommands" "/tmp/$n.voicecommands" <<'PY'
+          import plistlib, sys
+          _, spec, committed, fresh = sys.argv
+          a = plistlib.loads(open(committed,'rb').read())["CommandsTable"]
+          b = plistlib.loads(open(fresh,'rb').read())["CommandsTable"]
+          def norm(t):
+              return sorted((tuple(v["CustomCommands"]["en_US"]), v.get("CustomType"),
+                             v.get("CustomShortcutKeyCode"),
+                             v.get("CustomShortcutModifierFlags"),
+                             tuple(v.get("CustomURLStringList", []))) for v in t.values())
+          if norm(a) != norm(b):
+              sys.exit(f"{committed} is stale — rebuild it from {spec}")
+          print(f"  {committed} up to date")
+          PY
+          done
