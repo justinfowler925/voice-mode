@@ -5,8 +5,12 @@
 No hotkey. No third-party dictation app. No background daemons. One phrase to send, in every
 app, and a tool that tells you why a command isn't working instead of leaving you guessing.
 
+**Setup guide, full command reference and troubleshooting:
+[justinfowler.com/voice-mode](https://justinfowler.com/voice-mode.html)** — start there if you just
+want it working. This README is the developer view.
+
 ```sh
-git clone https://github.com/<you>/voice-mode && cd voice-mode
+git clone https://github.com/justinfowler925/voice-mode && cd voice-mode
 ./bin/voice-mode doctor
 ```
 
@@ -121,6 +125,16 @@ claim is inferred rather than verified, it says so.
 
 Contributions especially wanted for: the Vocabulary import file format (undiscovered), which
 apps drop which synthetic keys, and `Select Menu` command sets for specific apps.
+
+## Reading
+
+- **[justinfowler.com/voice-mode](https://justinfowler.com/voice-mode.html)** — setup in five
+  minutes, the command reference, and troubleshooting by symptom. For novices and developers both.
+- **[The Voice Optimization Stack](https://justinfowler.com/writing/voice-optimization-stack.html)**
+  — the seven layers between your mouth and a computer doing what you meant, ranked by leverage,
+  with the measurement for each.
+- **[Heard, Not Obeyed](https://justinfowler.com/writing/heard-not-obeyed.html)** — the evening
+  this came out of. Seven dead ends and three wrong conclusions, written down so nobody repeats them.
 
 ## License
 
