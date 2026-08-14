@@ -1,0 +1,39 @@
+I spent an evening trying to talk to my Mac without touching it.
+
+The send command fired 8 times. It sent 0 messages.
+
+Not "it didn't hear me." It heard me perfectly, every single time, and did nothing. Those two failures look identical from the chair and have nothing in common as bugs — and macOS keeps the number that tells them apart while showing it in no interface anywhere.
+
+Here is what was actually wrong, after hours of it being something else:
+
+A synthetic bare Return is silently dropped by every Electron app. Claude, Cursor, Slack, VS Code. Cmd+Return, from the identical mechanism, works in all of them.
+
+Same event. Same code path. Opposite result. One modifier key.
+
+I did not find that for a long time, because I made the reasonable inference instead: keystrokes don't work in these apps. So I went and built an accessibility-tree walker to find and press the send button directly — which works often enough to ship and then fails constantly, because those trees shift with layout.
+
+Three wrong conclusions went into my notes that night, each corrected within the hour:
+
+"The config is right, so it works." Twice. The stored settings and the running recognizer are different layers.
+
+"It works everywhere." Written off somebody telling me it "seems to work" — a hedge I promoted to a verified claim, then had to retract.
+
+"Keystrokes don't work in Electron." True of Return, false of Cmd+Return, and one test wide the whole time.
+
+The pattern in all three: a conclusion drawn one observation wider than the evidence supported. Cheap to check. Expensive to retract. And the third is the costly kind, because a bad generalisation early sends the whole investigation down a road, and the dead end you eventually hit reads like confirmation instead of the consequence of a wrong turn three steps back.
+
+The working setup is one line of config. Apple Voice Control listening continuously, one phrase bound to Cmd+Return. It replaced four background daemons, eleven helper apps, and a local speech engine that had never successfully transcribed a single word.
+
+So I wrote down everything, because the reason this took an evening is that none of it is documented.
+
+There is no SDK. No framework, no XPC service, no entitlement. Voice Control commands live in one undocumented plist, and the per-command schema — the field that decides whether your command works or fires forever doing nothing — is written down nowhere. No community repo of shared command sets exists either. Meanwhile the search results are content farms, and a widely-copied claim that macOS has no custom vocabulary is simply false.
+
+voice-mode is public now. The complete .voicecommands format, derived by reading a live table and writing to it until every field's behaviour was known. Why commands fail, sorted into four tiers so you can predict which of yours will. The undocumented notify surface — five recognizer modes, including a code-dictation mode Apple never exposed. And a doctor that reads the counter and tells you which half is broken.
+
+The reusable part has nothing to do with dictation:
+
+Reliability is a property of the mechanism you bound to, not the app it lands in.
+
+And the one that keeps earning its keep — the layer that reports success is the one lying. Settings correct. Command fired. Exit code zero. No message sent.
+
+https://github.com/justinfowler925/voice-mode
