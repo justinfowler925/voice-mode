@@ -1,0 +1,13 @@
+{
+  "name": "claude",
+  "description": "Claude desktop. Modified keys only.",
+  "provenance": "Claude desktop 1.30096.1. punch it verified sending in Claude by counter + outcome. click send also works here (its send control has an accessible name, unlike Cursor's).",
+  "commands": [
+    { "say": ["punch it", "punch send"],       "key": "return", "mods": ["cmd"] },
+    { "say": ["new chat", "fresh chat"],       "key": "n", "mods": ["cmd"] },
+    { "say": ["find it", "search chats"],      "key": "f", "mods": ["cmd"] },
+    { "say": ["toggle the sidebar"],           "key": "b", "mods": ["cmd"] },
+    { "say": ["copy that"],                    "key": "c", "mods": ["cmd"] },
+    { "say": ["select all"],                   "key": "a", "mods": ["cmd"] }
+  ]
+}

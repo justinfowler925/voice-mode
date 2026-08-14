@@ -1,0 +1,24 @@
+name: test
+# Runs on pull_request so it is a GATE, not a post-merge deploy. A workflow that only
+# fires on push:[main] runs after the merge and cannot block anything.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show python
+        run: python3 --version
+      - name: Tests
+        run: python3 tests/test_voice_mode.py
+      - name: Sets rebuild reproducibly
+        run: |
+          for s in sets/*.json; do
+            ./bin/voice-mode build "$s" -o "/tmp/$(basename "$s" .json).voicecommands"
+          done
+      - name: Every shipped .voicecommands is a valid plist
+        run: for f in sets/*.voicecommands; do plutil -lint "$f"; done

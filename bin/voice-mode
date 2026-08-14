@@ -21,7 +21,28 @@ from pathlib import Path
 CMD_DOMAIN = "com.apple.speech.recognition.AppleSpeechRecognition.CustomCommands"
 PREF_DOMAIN = "com.apple.speech.recognition.AppleSpeechRecognition.prefs"
 APPLE_EPOCH = dt.datetime(2001, 1, 1)
-CMD_FLAG = 1 << 20  # 1048576
+
+# NSEvent modifier flags. Only CMD is verified empirically on this path (observed in a
+# working command written by the Settings UI); the rest are the standard NSEvent values.
+CMD_FLAG = 1 << 20      # 1048576  — VERIFIED
+SHIFT_FLAG = 1 << 17    # 131072
+CTRL_FLAG = 1 << 18     # 262144
+OPT_FLAG = 1 << 19      # 524288
+
+MOD_FLAGS = {"cmd": CMD_FLAG, "shift": SHIFT_FLAG, "ctrl": CTRL_FLAG, "opt": OPT_FLAG}
+
+# Named keys so a set file reads like English instead of virtual key codes.
+KEY_CODES = {
+    "a": 0, "b": 11, "c": 8, "d": 2, "e": 14, "f": 3, "g": 5, "h": 4, "i": 34,
+    "j": 38, "k": 40, "l": 37, "m": 46, "n": 45, "o": 31, "p": 35, "q": 12,
+    "r": 15, "s": 1, "t": 17, "u": 32, "v": 9, "w": 13, "x": 7, "y": 16, "z": 6,
+    "return": 36, "tab": 48, "space": 49, "delete": 51, "escape": 53,
+    "left": 123, "right": 124, "down": 125, "up": 126,
+    "pageup": 116, "pagedown": 121, "home": 115, "end": 119,
+    "comma": 43, "period": 47, "slash": 44, "backslash": 42,
+    "grave": 50, "minus": 27, "equal": 24, "leftbracket": 33, "rightbracket": 30,
+    "1": 18, "2": 19, "3": 20, "4": 21, "5": 23, "6": 22, "7": 26, "8": 28, "9": 25, "0": 29,
+}
 
 # Virtual key codes worth naming. Bare keys are called out because they do not survive.
 KEY_NAMES = {
@@ -69,8 +90,9 @@ def classify(cmd: dict) -> tuple[str, str]:
         code = cmd.get("CustomShortcutKeyCode")
         mods = cmd.get("CustomShortcutModifierFlags") or 0
         key = KEY_NAMES.get(code, f"key{code}")
-        if mods & CMD_FLAG:
-            return TIER_OK_MOD, f"Cmd+{key}"
+        names = [n.capitalize() for n, f in MOD_FLAGS.items() if mods & f]
+        if mods:
+            return TIER_OK_MOD, "+".join(names + [key])
         return TIER_BAD_BARE, key
     if t == "URL":
         targets = cmd.get("CustomURLStringList") or []
@@ -204,18 +226,38 @@ def cmd_build(args) -> int:
             "CustomModifyDate": dt.datetime(2026, 1, 1),
         }
         if "key" in entry:
-            c["CustomType"] = "Shortcut"
-            c["CustomShortcutKeyCode"] = entry["key"]
-            if entry.get("cmd"):
-                c["CustomShortcutModifierFlags"] = CMD_FLAG
-            elif not entry.get("allow_bare"):
-                skipped.append({**entry, "_why": "bare key — pass allow_bare to force"})
+            k = entry["key"]
+            code = KEY_CODES.get(str(k).lower()) if not isinstance(k, int) else k
+            if code is None:
+                skipped.append({**entry, "_why": f"unknown key name {k!r}"})
                 continue
+            mods = 0
+            for m in entry.get("mods", []):
+                if m not in MOD_FLAGS:
+                    skipped.append({**entry, "_why": f"unknown modifier {m!r}"})
+                    mods = None
+                    break
+                mods |= MOD_FLAGS[m]
+            if mods is None:
+                continue
+            # The gate: an unmodified key is silently dropped by Electron composers.
+            if mods == 0 and not entry.get("allow_bare"):
+                skipped.append({**entry, "_why": "bare key — dropped by Electron composers; "
+                                                "add mods, or allow_bare:true to force"})
+                continue
+            c["CustomType"] = "Shortcut"
+            c["CustomShortcutKeyCode"] = code
+            if mods:
+                c["CustomShortcutModifierFlags"] = mods
         elif "open" in entry:
             c["CustomType"] = "URL"
             c["CustomURLStringList"] = [entry["open"]]
+        elif "menu" in entry:
+            # Menu items are always named, so this survives where click-by-label cannot.
+            c["CustomType"] = "SelectMenu"
+            c["CustomMenuPath"] = entry["menu"]
         else:
-            skipped.append({**entry, "_why": "no key or open target"})
+            skipped.append({**entry, "_why": "needs one of: key, open, menu"})
             continue
         table[cid] = c
 

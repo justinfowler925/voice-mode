@@ -1,0 +1,17 @@
+{
+  "name": "cursor",
+  "description": "Cursor. Every binding is a modified key, which is the tier that survives its Electron composer.",
+  "provenance": "Cursor 1.128.0 (VS Code base), shortcuts from Cursor's and VS Code's published keybindings. punch it verified sending in Cursor by counter + outcome; the rest are documented shortcuts, not individually counter-verified.",
+  "commands": [
+    { "say": ["punch it", "punch send"],              "key": "return", "mods": ["cmd"] },
+    { "say": ["open the palette", "command palette"], "key": "p", "mods": ["cmd", "shift"] },
+    { "say": ["go to file", "quick open"],            "key": "p", "mods": ["cmd"] },
+    { "say": ["toggle the sidebar", "hide sidebar"],  "key": "b", "mods": ["cmd"] },
+    { "say": ["toggle the panel", "hide panel"],      "key": "j", "mods": ["cmd"] },
+    { "say": ["open a terminal", "show terminal"],    "key": "grave", "mods": ["ctrl"] },
+    { "say": ["new cursor chat", "start a chat"],     "key": "l", "mods": ["cmd"] },
+    { "say": ["open composer", "start composer"],     "key": "i", "mods": ["cmd"] },
+    { "say": ["save it", "save this"],                "key": "s", "mods": ["cmd"] },
+    { "say": ["close this tab"],                      "key": "w", "mods": ["cmd"] }
+  ]
+}
