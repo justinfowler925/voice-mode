@@ -184,6 +184,16 @@ def cmd_doctor(args) -> int:
             print(f"      {c['id']}  (fired {c['fired']} before being switched off)")
 
     print("\n" + "-" * 60)
+    # A verdict on an empty set is not a pass. Assert the denominator before saying "clean":
+    # "0 problems in 0 commands" and "0 problems in 15 commands" must not print the same.
+    if not custom:
+        print("NOTHING TO CHECK — no custom commands found.")
+        print("  This is not a clean bill of health, it is an empty set. If you expected")
+        print("  commands here, the store is empty or unreadable:")
+        print(f"    defaults export {CMD_DOMAIN} -")
+        print("  Start with:  ./bin/voice-mode build sets/core.json -o core.voicecommands")
+        print("  then import it in System Settings > Accessibility > Voice Control > Commands.")
+        return 2
     if problems:
         print("FINDINGS")
         for p in problems:

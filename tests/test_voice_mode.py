@@ -130,6 +130,23 @@ for f in sorted((ROOT / "sets").glob("*.json")):
           "emitted 0 — the set is broken, not clean")
 
 
+
+print("\nzero-state — a verdict on an empty set is not a pass")
+
+import io, contextlib
+_real_read = vm._read
+vm._read = lambda d: {}
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    class _A: pass
+    rc_empty = vm.cmd_doctor(_A())
+vm._read = _real_read
+txt = buf.getvalue()
+check("empty config does NOT report 'no binding problems'",
+      "No binding problems found" not in txt)
+check("empty config says nothing to check", "NOTHING TO CHECK" in txt)
+check("empty config exits non-zero (2)", rc_empty == 2, f"got {rc_empty}")
+
 print("\n" + "=" * 56)
 print(f"{len(PASS)} passed, {len(FAIL)} failed")
 if FAIL:
