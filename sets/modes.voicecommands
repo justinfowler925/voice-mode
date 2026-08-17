@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CommandsTable</key>
+	<dict>
+		<key>Custom.900000000.100000000</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>hands</string>
+					<string>commands only</string>
+					<string>stop typing</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file://~/.voice-mode/ModeCommand.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000001.100000001</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>talk</string>
+					<string>type this</string>
+					<string>start typing</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file://~/.voice-mode/ModeTalk.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000002.100000002</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>code mode</string>
+					<string>dictate code</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file://~/.voice-mode/ModeCode.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000003.100000003</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>spell mode</string>
+					<string>spelling mode</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file://~/.voice-mode/ModeSpell.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+		<key>Custom.900000004.100000004</key>
+		<dict>
+			<key>CustomCommands</key>
+			<dict>
+				<key>en_US</key>
+				<array>
+					<string>number mode</string>
+					<string>numbers mode</string>
+				</array>
+			</dict>
+			<key>CustomModifyDate</key>
+			<date>2026-01-01T00:00:00Z</date>
+			<key>CustomScope</key>
+			<string>com.apple.speech.SystemWideScope</string>
+			<key>CustomType</key>
+			<string>URL</string>
+			<key>CustomURLStringList</key>
+			<array>
+				<string>file://~/.voice-mode/ModeNumbers.app</string>
+			</array>
+			<key>Enabled</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>ExportDate</key>
+	<real>808400000.0</real>
+	<key>SystemVersion</key>
+	<dict>
+		<key>ProductName</key>
+		<string>macOS</string>
+		<key>ProductVersion</key>
+		<string>26.6</string>
+	</dict>
+</dict>
+</plist>

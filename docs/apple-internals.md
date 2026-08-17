@@ -25,6 +25,24 @@ unexposed in Settings, and reachable in one line. `SpellingDictation` is letter-
 Wrap any of these in a `URL`-type command pointing at a two-line shell app and you have a
 spoken mode switch. That is how `hands` / `talk` work in this repo.
 
+## Trap: never put a script inside ~/Library/Application Support
+
+A `URL`-type command pointing at a small app bundle is the standard way to reach the notify
+surface above. **Do not keep that app, or any script it runs, under
+`~/Library/Application Support/`.**
+
+That directory is TCC-protected App Data. Running an interpreter against a script that lives
+there turns an ordinary file read into a *"Python wants to access data from other applications"*
+prompt — on **every** launch, not once.
+
+And it cannot be granted away permanently. Tools like `uv` install interpreters at
+version-pinned paths (`cpython-3.13.13-...`) with the stable name as a symlink; TCC records the
+**resolved** path, so every patch upgrade is a brand-new binary identity and prompts again. The
+grant you clicked last month is still there, attached to a path nothing runs anymore.
+
+Keep wrapper apps and their scripts somewhere ordinary — `~/.voice-mode/`, `~/.config/`, a repo
+checkout. The command's `CustomURLStringList` can point anywhere.
+
 ## Where the phrases live, and don't
 
 - **Command catalog:** `/System/Library/Input Methods/DictationIM.app/Contents/Resources/BuiltinCommandsCatalog.plist`

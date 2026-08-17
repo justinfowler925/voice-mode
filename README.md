@@ -56,7 +56,7 @@ That's it. It replaced four launchd daemons and eleven helper apps.
 | [`docs/mechanism-tiers.md`](docs/mechanism-tiers.md) | Why a command fires and does nothing, and how to predict it from the binding alone. |
 | [`docs/apple-internals.md`](docs/apple-internals.md) | The undocumented `notify(3)` surface — five recognizer modes including a code-dictation mode — and the 161-command built-in catalog. |
 | [`bin/voice-mode`](bin/voice-mode) | `doctor`, `list`, `build`. Python 3 stdlib only. |
-| [`sets/`](sets/) | Readable JSON command sets → importable `.voicecommands` files. |
+| [`sets/`](sets/) | Readable JSON command sets → importable `.voicecommands` files, including `modes` for the three recognizer modes Apple never exposed. |
 | [`reference/card.html`](reference/card.html) | An on-screen cheat card you can park in a corner. |
 
 ## `voice-mode doctor`
@@ -122,6 +122,12 @@ If you fork this, add your own workflow calling that script; it needs nothing bu
 Early. Verified on macOS 26.6 against Claude, Cursor and Slack. Everything documented here was
 either read out of an Apple binary or observed changing behaviour on a live system; where a
 claim is inferred rather than verified, it says so.
+
+**One trap worth reading before you build anything:** never keep a wrapper app or its script
+under `~/Library/Application Support/`. It is TCC-protected, so running an interpreter against a
+script there prompts on every launch — and because `uv` pins the python patch version into its
+path, granting it never sticks past an upgrade. Details in
+[apple-internals.md](docs/apple-internals.md).
 
 Contributions especially wanted for: the Vocabulary import file format (undiscovered), which
 apps drop which synthetic keys, and `Select Menu` command sets for specific apps.

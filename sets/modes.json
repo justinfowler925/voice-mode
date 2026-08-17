@@ -1,0 +1,13 @@
+{
+  "name": "modes",
+  "description": "Voice Control's five recognizer modes. Two are exposed in Settings; three are not.",
+  "provenance": "Mode names read out of the DictationIM binary on macOS 26.6. Each command opens a two-line shell app that posts the notification. SwiftCodeDictation has its own model (SwiftCodeModel.lzfse) and a ShowCodingUserGuide notification; Apple surfaces neither.",
+  "note": "Build the wrapper apps first — see docs/apple-internals.md. Scripts and app bundles must NOT live under ~/Library/Application Support (see the TCC trap in that doc).",
+  "commands": [
+    { "say": ["hands", "commands only", "stop typing"], "open": "file://~/.voice-mode/ModeCommand.app" },
+    { "say": ["talk", "type this", "start typing"],     "open": "file://~/.voice-mode/ModeTalk.app" },
+    { "say": ["code mode", "dictate code"],             "open": "file://~/.voice-mode/ModeCode.app" },
+    { "say": ["spell mode", "spelling mode"],           "open": "file://~/.voice-mode/ModeSpell.app" },
+    { "say": ["number mode", "numbers mode"],           "open": "file://~/.voice-mode/ModeNumbers.app" }
+  ]
+}
