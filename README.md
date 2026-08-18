@@ -111,11 +111,17 @@ speech — each one submits a half-written message.
 known violation and asserted to refuse it. Plus: shipped `.voicecommands` files must match a
 fresh rebuild from their `.json`, and an empty set fails rather than passing as "clean."
 
-**There is no CI here, deliberately.** GitHub Actions cannot start a run in this repository —
-a workflow whose only step is `echo hello` completes as *failure* in about four seconds with
-**zero steps executed** and no annotation. That is an account-level condition, not a code
-problem, and a permanently red check would misrepresent working code. `./tests/run` is the gate.
-If you fork this, add your own workflow calling that script; it needs nothing but python3.
+**There is no CI in *this* repo — but that is about my account, not this code.**
+A workflow whose only step is `echo hello` completes as *failure* in ~4 seconds with **zero
+steps executed** and no annotation. Cause: GitHub-hosted runners are billing-locked on the
+account, and this repo has no self-hosted runner registered (`gh api
+repos/OWNER/REPO/actions/runners` returns 0). A sibling repo on the same account runs CI
+green purely because it *does* have one. So the distinction that matters is per-repo runner
+availability, not "Actions is broken."
+
+**If you fork this, your CI will almost certainly work.** Add a workflow that runs
+`./tests/run` on `pull_request` — it needs nothing but python3 and takes seconds. Locally,
+`./tests/run` is the gate either way.
 
 ## Status
 
